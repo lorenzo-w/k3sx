@@ -1,3 +1,15 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: s3-secret
+  namespace: longhorn-system
+type: Opaque
+data:
+  # See https://longhorn.io/docs/1.2.4/snapshots-and-backups/backup-and-restore/set-backup-target/#set-up-aws-s3-backupstore
+  AWS_ACCESS_KEY_ID: {{ .Values.s3_backup.access_key.id | b64enc | quote }}
+  AWS_SECRET_ACCESS_KEY: {{ .Values.s3_backup.access_key.secret | b64enc | quote }}
+  AWS_ENDPOINTS: {{ .Values.s3_backup.endpoint | b64enc | quote }}
+---
 apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
@@ -12,3 +24,45 @@ spec:
       # See https://longhorn.io/docs/1.2.4/snapshots-and-backups/backup-and-restore/set-backup-target/#set-up-aws-s3-backupstore
       backupTarget: {{ printf "s3://%s@%s/" .Values.s3_backup.bucket ``.Values.s3_backup.region }}
       backupTargetCredentialSecret: s3-secret
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: longhorn-authproxy
+spec:
+  chart: oauth2-proxy
+  repo: https://oauth2-proxy.github.io/manifests
+  version: 6.2.0
+  targetNamespace: longhorn-system
+  set:
+    config:
+      clientID: longhorn_ui
+      clientSecret: {{ derivePassword 1 "maximum" .Values.secretSeed "longhorn_ui-client" .Values.domain | b64enc | quote }}
+      cookieSecret: {{ randAlphaNum 32 }}
+      configFile: |-
+        upstreams = [ "http://longhorn-frontend" ]
+
+    ingress:
+      enabled: true
+      annotations:
+        cert-manager.io/cluster-issuer: acme
+      hosts:
+        - host: {{ printf "%s.%s" .Values.root.subdomains.longhorn_ui .Values.root.domain }}
+      tls:
+        - hosts:
+            - {{ printf "%s.%s" .Values.root.subdomains.longhorn_ui .Values.root.domain }}
+          secretName: longhorn-cert
+---
+apiVersion: longhorn.io/v1beta1
+kind: RecurringJob
+metadata:
+  name: main-backup
+  namespace: longhorn-system
+spec:
+  # See https://longhorn.io/docs/1.2.4/snapshots-and-backups/scheduling-backups-and-snapshots/#set-up-recurring-jobs-using-a-longhorn-recurringjob
+  cron: "0 0 * * *" # Every day at 12:00 AM
+  task: "backup"
+  groups:
+  - default
+  retain: 2
+  concurrency: 1

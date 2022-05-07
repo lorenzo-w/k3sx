@@ -9,6 +9,9 @@ Install k3s on given ssh remotes via k3sup and setup additional components for a
 - `--flannel-backend=none` for Cilium
 - `--disable-network-policy` for Cilium
 - `--disable traefik` for Contour
+- `--oidc-issuer-url=<URL> --oidc-client-id=<ID> --oidc-username-claim=email --oidc-groups-claim=groups` 
+  - to enable auth via Dex
+  - see [K8S Auth Docs](https://kubernetes.io/docs/reference/access-authn-authz/authentication/#configuring-the-api-server)
 
 ### k3s input
 
@@ -21,16 +24,17 @@ Install k3s on given ssh remotes via k3sup and setup additional components for a
 ### (Manual) setup steps
 
 - Install CLI tools
-  - kubectl
-  - helm
-  - k3sup
-  - argocd
-- Setup k3s on all given ssh remotes
-- Install ArgoCD via helm
-- Render `chart/templates/argocd/*` and `chart/templates/dex.yaml`, then `kubectl apply` them
-- Other setup
-  - Possibly [change the default StorageClass](https://kubernetes.io/docs/tasks/administer-cluster/change-default-storage-class/) to Longhorn
-  - Possibly setup [OpenID with kubelogin](https://elastisys.com/elastisys-engineering-how-to-use-dex-with-google-accounts-to-manage-access-in-kubernetes/)
+  - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/)
+  - [kubelogin](https://github.com/Azure/kubelogin#getting-started)
+  - [helm](https://helm.sh/docs/intro/install/)
+  - [k3sup](https://github.com/alexellis/k3sup#download-k3sup-tldr)
+  - [argocd](https://argo-cd.readthedocs.io/en/stable/cli_installation/#installation)
+  - [vcluster](https://www.vcluster.com/docs/getting-started/setup)
+- Setup k3s on all given ssh remotes with params listed above
+- Install `/chart` via helm, supplying custom `values.yaml`
+- Add app referencing `/chart` with according `values.yaml` via `argocd app`
+- [Change the default StorageClass](https://kubernetes.io/docs/tasks/administer-cluster/change-default-storage-class/) to Longhorn
+- Setup one or more [vclusters](https://www.vcluster.com/docs/getting-started/deployment)
 
 ### Sources
 
@@ -81,7 +85,3 @@ Install k3s on given ssh remotes via k3sup and setup additional components for a
 
    - [Chart](https://artifacthub.io/packages/helm/k8s-dashboard/kubernetes-dashboard)
    - [K3s install instructions](https://rancher.com/docs/k3s/latest/en/installation/kube-dashboard/)
-
-8. Authentik
-
-   - [Install](https://goauthentik.io/docs/installation/kubernetes)

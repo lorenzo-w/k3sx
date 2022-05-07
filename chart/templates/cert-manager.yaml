@@ -9,3 +9,17 @@ spec:
   targetNamespace: cert-manager
   set:
     installCRDs: true
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: acme
+spec:
+  acme:
+    email: {{ .Values.email.admin_address | quote }}
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      # Secret resource that will be used to store the account's private key.
+      name: acme-issuer-account-key
+    solvers:
+      - http01

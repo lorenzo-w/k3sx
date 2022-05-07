@@ -1,0 +1,106 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: argocd-certificate
+  namespace: argocd
+spec:
+  commonName: {{ printf "%s.%s" .Values.root.subdomains.argocd .Values.root.domain }}
+  dnsNames:
+  - {{ printf "%s.%s" .Values.root.subdomains.argocd .Values.root.domain }}
+  issuerRef:
+    name: acme
+    kind: ClusterIssuer
+  secretName: argocd-tls
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cm
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-cm
+    app.kubernetes.io/part-of: argocd
+data:
+  # Argo CD's externally facing base URL (optional). Required when configuring SSO
+  url: {{ printf "https://%s.%s" .Values.root.subdomains.argocd .Values.root.domain }}
+
+  # OIDC configuration as an alternative to dex (optional).
+  oidc.config: |
+    name: Dex
+    issuer: {{ printf "https://%s.%s" .Values.root.subdomains.dex .Values.root.domain }}
+    clientID: argo-cd
+    clientSecret: {{ derivePassword 1 "maximum" .Values.secretSeed "argo-cd-client" .Values.domain | b64enc | quote }}
+    requestedScopes: ["openid", "profile", "email", "groups"]
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-rbac-cm
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-rbac-cm
+    app.kubernetes.io/part-of: argocd
+data:
+  # policy.csv is an file containing user-defined RBAC policies and role definitions (optional).
+  # Policy rules are in the form:
+  #   p, subject, resource, action, object, effect
+  # Role definitions and bindings are in the form:
+  #   g, subject, inherited-subject
+  # See https://github.com/argoproj/argo-cd/blob/master/docs/operator-manual/rbac.md for additional information.
+  policy.csv: |
+    g, {{ .Values.adminGroup }}, role:admin
+
+  # scopes controls which OIDC scopes to examine during rbac enforcement (in addition to `sub` scope).
+  # If omitted, defaults to: '[groups]'. The scope value can be a string, or a list of strings.
+  scopes: "[groups, email]"
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: argocd
+spec:
+  chart: argo-cd
+  repo: https://argoproj.github.io/argo-helm
+  version: 4.5.10
+  targetNamespace: argocd
+  set:
+    adminPassword:
+      server:
+        extraArgs:
+          - "--insecure"
+
+    ingress:
+      enabled: true
+      annotations:
+        cert-manager.io/cluster-issuer: acme
+      hosts:
+        - host: {{ printf "%s.%s" .Values.root.subdomains.argocd .Values.root.domain }}
+      tls:
+        - hosts:
+            - {{ printf "%s.%s" .Values.root.subdomains.argocd .Values.root.domain }}
+          secretName: argocd-cert
+---
+# httpproxy-multiple-headers.yaml
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: argocd-ingress
+  namespace: argocd
+spec:
+  virtualhost:
+    fqdn: {{ printf "%s.%s" .Values.root.subdomains.argocd .Values.root.domain }}
+    tls:
+      secretName: argocd-tls
+  routes:
+    # Translated from this Traefik example: https://argo-cd.readthedocs.io/en/stable/operator-manual/ingress/#ingressroute-crd
+    - conditions:
+      - header:
+          name: Content-Type
+          contains: application/grpc
+      services:
+        - name: argocd-server
+          port: 80
+          protocol: h2c
+    - services:
+        - name: argocd-server
+          port: 80
