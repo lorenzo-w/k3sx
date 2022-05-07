@@ -1,0 +1,9 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: k8s-dashboard
+spec:
+  chart: kubernetes-dashboard
+  repo: https://kubernetes.github.io/dashboard
+  version: 5.4.1
+  targetNamespace: kubernetes-dashboard

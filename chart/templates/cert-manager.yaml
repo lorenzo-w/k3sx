@@ -1,0 +1,11 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: cert-manager
+spec:
+  chart: longhorn
+  repo: cert-manager
+  version: 1.8.0
+  targetNamespace: cert-manager
+  set:
+    installCRDs: true

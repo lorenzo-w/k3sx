@@ -1,0 +1,17 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: external-dns
+spec:
+  chart: external-dns
+  repo: https://charts.bitnami.com/bitnami
+  version: 6.3.0
+  targetNamespace: external-dns
+  set:
+    sources:
+      - service
+      - ingress
+      - contour-httpproxy
+    provider: digitalocean
+    digitalocean:
+      apiToken: {{ .Values.external_dns.digitalocean_apiToken }}

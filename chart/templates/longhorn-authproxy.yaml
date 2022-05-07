@@ -1,0 +1,27 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: longhorn-authproxy
+spec:
+  chart: oauth2-proxy
+  repo: https://oauth2-proxy.github.io/manifests
+  version: 6.2.0
+  targetNamespace: longhorn-system
+  set:
+    config:
+      clientID: longhorn_ui
+      clientSecret: {{ derivePassword 1 "maximum" .Values.secretSeed "longhorn_ui-client" .Values.domain | b64enc | quote }}
+      cookieSecret: {{ randAlphaNum 32 }}
+      configFile: |-
+        upstreams = [ "http://longhorn-frontend" ]
+
+    ingress:
+      enabled: true
+      annotations:
+        cert-manager.io/cluster-issuer: acme
+      hosts:
+        - host: {{ printf "%s.%s" .Values.root.subdomains.longhorn_ui .Values.root.domain }}
+      tls:
+        - hosts:
+            - {{ printf "%s.%s" .Values.root.subdomains.longhorn_ui .Values.root.domain }}
+          secretName: longhorn-cert

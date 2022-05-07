@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cm
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: argocd-cm
+    app.kubernetes.io/part-of: argocd
+data:
+  # Argo CD's externally facing base URL (optional). Required when configuring SSO
+  url: {{ printf "https://%s.%s" .Values.root.subdomains.argocd .Values.root.domain }}
+
+  # OIDC configuration as an alternative to dex (optional).
+  oidc.config: |
+    name: Dex
+    issuer: {{ printf "https://%s.%s" .Values.root.subdomains.dex .Values.root.domain }}
+    clientID: argo-cd
+    clientSecret: {{ derivePassword 1 "maximum" .Values.secretSeed "argo-cd-client" .Values.domain | b64enc | quote }}
+    requestedScopes: ["openid", "profile", "email", "groups"]

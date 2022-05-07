@@ -1,0 +1,36 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: authentik
+spec:
+  chart: authentik
+  repo: https://charts.goauthentik.io
+  version: 2022.4.1
+  targetNamespace: authentik
+  set:
+    authentik:
+      secret_key: {{ derivePassword 1 "maximum" .Values.secretSeed "authentik-postgres" .Values.domain | b32enc | repeat 5 | trunc 50 }}
+      # This sends anonymous usage-data, stack traces on errors and
+      # performance data to sentry.beryju.org, and is fully opt-in
+      error_reporting:
+        enabled: true
+      postgresql:
+        {{- $postgresPass := derivePassword 1 "maximum" .Values.secretSeed "authentik-postgres" .Values.domain | b64enc | quote -}}
+        password: {{ $postgresPass }}
+
+    ingress:
+      enabled: true
+      annotations:
+        cert-manager.io/cluster-issuer: acme
+      hosts:
+        - host: {{ printf "%s.%s" .Values.root.subdomains.authentik .Values.root.domain }}
+      tls:
+        - hosts:
+            - {{ printf "%s.%s" .Values.root.subdomains.authentik .Values.root.domain }}
+          secretName: authentik-cert
+
+    postgresql:
+      enabled: true
+      postgresqlPassword: {{ $postgresPass }}
+    redis:
+      enabled: true

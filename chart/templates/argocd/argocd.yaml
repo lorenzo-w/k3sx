@@ -1,0 +1,25 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: argocd
+spec:
+  chart: argo-cd
+  repo: https://argoproj.github.io/argo-helm
+  version: 4.5.10
+  targetNamespace: argocd
+  set:
+    adminPassword:
+      server:
+        extraArgs:
+          - "--insecure"
+
+    ingress:
+      enabled: true
+      annotations:
+        cert-manager.io/cluster-issuer: acme
+      hosts:
+        - host: {{ printf "%s.%s" .Values.root.subdomains.argocd .Values.root.domain }}
+      tls:
+        - hosts:
+            - {{ printf "%s.%s" .Values.root.subdomains.argocd .Values.root.domain }}
+          secretName: argocd-cert

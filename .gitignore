@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Config files (contain private data)
+/values.yaml
+/nodes.yaml

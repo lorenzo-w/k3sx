@@ -1,0 +1,53 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: dex
+spec:
+  chart: dex
+  repo: https://charts.dexidp.io
+  version: 0.8.2
+  targetNamespace: dex
+  set:
+    config:
+      # See https://dexidp.io/docs/storage/ for more options
+      storage:
+        type: memory
+      issuer: {{ printf "https://%s.%s" .Values.root.subdomains.dex .Values.root.domain }}
+      connectors: {{ .Values.root.idpConnectors }}
+      staticClients:
+        - id: argo-cd
+          secret: {{ derivePassword 1 "maximum" .Values.secretSeed "argo-cd-client" .Values.domain | b64enc | quote }}
+          name: "Argo CD"
+          redirectURIs:
+            - {{ printf "https://%s.%s/auth/callback" .Values.root.subdomains.argocd .Values.root.domain }}
+        - id: k8s_dashboard
+          secret: {{ derivePassword 1 "maximum" .Values.secretSeed "k8s_dashboard-client" .Values.domain | b64enc | quote }}
+          name: "K8S Dashboard"
+          redirectURIs:
+            - {{ printf "https://%s.%s/oauth2/callback" .Values.root.subdomains.k8s_dashboard .Values.root.domain }}
+        - id: longhorn_ui
+          secret: {{ derivePassword 1 "maximum" .Values.secretSeed "longhorn_ui-client" .Values.domain | b64enc | quote }}
+          name: "Longhorn UI"
+          redirectURIs:
+            - {{ printf "https://%s.%s/oauth2/callback" .Values.root.subdomains.longhorn_ui .Values.root.domain }}
+        - id: cilium_ui
+          secret: {{ derivePassword 1 "maximum" .Values.secretSeed "cilium_ui-client" .Values.domain | b64enc | quote }}
+          name: "Cilium UI"
+          redirectURIs:
+            - {{ printf "https://%s.%s/oauth2/callback" .Values.root.subdomains.cilium_ui .Values.root.domain }}
+        - id: authentik
+          secret: {{ derivePassword 1 "maximum" .Values.secretSeed "authentik-client" .Values.domain | b64enc | quote }}
+          name: "Longhorn UI"
+          redirectURIs:
+            - {{ printf "https://%s.%s/source/oauth/callback" .Values.root.subdomains.authentik .Values.root.domain }}
+
+    ingress:
+      enabled: true
+      annotations:
+        cert-manager.io/cluster-issuer: acme
+      hosts:
+        - host: {{ printf "%s.%s" .Values.root.subdomains.dex  .Values.root.domain }}
+      tls:
+        - hosts:
+            - {{ printf "%s.%s" .Values.root.subdomains.dex  .Values.root.domain }}
+          secretName: dex-cert

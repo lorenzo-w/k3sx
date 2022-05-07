@@ -1,0 +1,25 @@
+secretSeed: "<GENERATED SECRET>"
+idpConnectors: [] # See https://dexidp.io/docs/connectors/
+adminGroup: "<GROUP LABEL>"
+domain: "<PUBLIC DOMAIN>"
+email:
+  admin_address: "<YOUR EMAIL>"
+s3_backup:
+  endpoint: "<URL>"
+  region: "eu-central-1"
+  bucket: "<BUCKET NAME>"
+  access_key:
+    id: "<ID STRING>"
+    secret: "<SECRET STRING>"
+external_dns:
+  digitalocean_apiToken: "<TOKEN STRING>"
+repo:
+  URL: "https://github.com/lorenzo-w/k3sx"
+  revision: "HEAD"
+subdomains:
+  argocd: "argo"
+  dex: "dex"
+  authentik: "auth"
+  k8s_dashboard: "k8s"
+  longhorn_ui: "longhorn"
+  cilium_ui: "cilium"

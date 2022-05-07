@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: argocd-certificate
+  namespace: argocd
+spec:
+  commonName: {{ printf "%s.%s" .Values.root.subdomains.argocd .Values.root.domain }}
+  dnsNames:
+  - {{ printf "%s.%s" .Values.root.subdomains.argocd .Values.root.domain }}
+  issuerRef:
+    name: acme
+    kind: ClusterIssuer
+  secretName: argocd-tls
