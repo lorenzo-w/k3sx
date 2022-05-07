@@ -12,6 +12,4 @@ spec:
       - service
       - ingress
       - contour-httpproxy
-    provider: digitalocean
-    digitalocean:
-      apiToken: {{ .Values.external_dns.digitalocean_apiToken }}
+{{ .Values.external_dns | indent 4 }}    

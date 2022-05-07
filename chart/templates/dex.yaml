@@ -13,7 +13,7 @@ spec:
       storage:
         type: memory
       issuer: {{ printf "https://%s.%s" .Values.root.subdomains.dex .Values.root.domain }}
-      connectors: {{ .Values.root.idpConnectors }}
+      connectors: {{ .Values.root.idpConnectors | nindent 4 }}
       staticClients:
         - id: argo-cd
           secret: {{ derivePassword 1 "maximum" .Values.secretSeed "argo-cd-client" .Values.domain | b64enc | quote }}

@@ -12,7 +12,9 @@ s3_backup:
     id: "<ID STRING>"
     secret: "<SECRET STRING>"
 external_dns:
-  digitalocean_apiToken: "<TOKEN STRING>"
+  provider: digitalocean
+  digitalocean:
+    apiToken: "<TOKEN STRING>"
 repo:
   URL: "https://github.com/lorenzo-w/k3sx"
   revision: "HEAD"
