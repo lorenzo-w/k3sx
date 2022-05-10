@@ -1,13 +1,24 @@
-apiVersion: helm.cattle.io/v1
-kind: HelmChart
+kind: Namespace
+apiVersion: v1
+metadata:
+name: authentik
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
 metadata:
   name: authentik
+  namespace: authentik
 spec:
-  chart: authentik
-  repo: https://charts.goauthentik.io
-  version: 2022.4.1
-  targetNamespace: authentik
-  set:
+  interval: 5m
+  chart:
+    spec:
+      chart: authentik
+      version: '2022.4.1'
+      sourceRef:
+        kind: HelmRepository
+        name: authentik
+        namespace: flux-system
+  values:
     authentik:
       secret_key: {{ derivePassword 1 "maximum" .Values.secretSeed "authentik-postgres" .Values.domain | b32enc | repeat 5 | trunc 50 }}
       # This sends anonymous usage-data, stack traces on errors and

@@ -1,0 +1,42 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+name: oauth2-proxy
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: oauth2-proxy
+  namespace: oauth2-proxy
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: oauth2-proxy
+      version: '6.2.0'
+      sourceRef:
+        kind: HelmRepository
+        name: oauth2-proxy
+        namespace: flux-system
+  values:
+    config:
+      clientID: oauth2_proxy
+      clientSecret: {{ derivePassword 1 "maximum" .Values.secretSeed "oauth2_proxy-client" .Values.domain | b64enc | quote }}
+      cookieSecret: {{ randAlphaNum 32 }}
+      configFile: |-
+        pass_access_token = true
+        pass_authorization_header = true
+        scopes = ["openid", "profile", "email", "groups", "federated:id", "audience:server:client_id:k8s"] 
+    # -> see https://oauth2-proxy.github.io/oauth2-proxy/docs/configuration/overview#config-file
+    # and https://dexidp.io/docs/custom-scopes-claims-clients/#scopes
+    # and https://dexidp.io/docs/custom-scopes-claims-clients/#cross-client-trust-and-authorized-party
+    ingress:
+      enabled: true
+      annotations:
+        cert-manager.io/cluster-issuer: acme
+      hosts:
+        - host: {{ printf "%s.%s" .Values.root.subdomains.oauth2_proxy .Values.root.domain }}
+      tls:
+        - hosts:
+            - {{ printf "%s.%s" .Values.root.subdomains.oauth2_proxy .Values.root.domain }}
+          secretName: oauth2-proxy-cert

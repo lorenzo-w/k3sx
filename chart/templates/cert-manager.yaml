@@ -1,13 +1,24 @@
-apiVersion: helm.cattle.io/v1
-kind: HelmChart
+kind: Namespace
+apiVersion: v1
+metadata:
+name: cert-manager
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
 metadata:
   name: cert-manager
+  namespace: cert-manager
 spec:
-  chart: longhorn
-  repo: cert-manager
-  version: 1.8.0
-  targetNamespace: cert-manager
-  set:
+  interval: 5m
+  chart:
+    spec:
+      chart: cert-manager
+      version: '1.8.0'
+      sourceRef:
+        kind: HelmRepository
+        name: cert-manager
+        namespace: flux-system
+  values:
     installCRDs: true
 ---
 apiVersion: cert-manager.io/v1

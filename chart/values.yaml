@@ -19,7 +19,7 @@ repo:
   URL: "https://github.com/lorenzo-w/k3sx"
   revision: "HEAD"
 subdomains:
-  argocd: "argo"
+  oauth2_proxy: "oauth2"
   dex: "dex"
   authentik: "auth"
   k8s_dashboard: "k8s"

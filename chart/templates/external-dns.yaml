@@ -1,16 +1,26 @@
-apiVersion: helm.cattle.io/v1
-kind: HelmChart
+kind: Namespace
+apiVersion: v1
+metadata:
+name: external-dns
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
 metadata:
   name: external-dns
+  namespace: external-dns
 spec:
-  chart: external-dns
-  repo: https://charts.bitnami.com/bitnami
-  version: 6.3.0
-  targetNamespace: external-dns
-  set:
+  interval: 5m
+  chart:
+    spec:
+      chart: external-dns
+      version: '6.3.0'
+      sourceRef:
+        kind: HelmRepository
+        name: bitnami
+        namespace: flux-system
+  values:
     sources:
       - service
       - ingress
-      - contour-httpproxy
     txtOwnerId: {{ printf "%s-%s" .Values.domain (derivePassword 1 "short" .Values.secretSeed "external-dns" .Values.domain | b64enc) | quote }}
 {{ .Values.external_dns | indent 4 }}    

@@ -1,36 +1,30 @@
-apiVersion: helm.cattle.io/v1
-kind: HelmChart
+kind: Namespace
+apiVersion: v1
 metadata:
-  name: k8s-dashboard
-spec:
-  chart: kubernetes-dashboard
-  repo: https://kubernetes.github.io/dashboard
-  version: 5.4.1
-  targetNamespace: kubernetes-dashboard
+name: kubernetes-dashboard
 ---
-apiVersion: helm.cattle.io/v1
-kind: HelmChart
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
 metadata:
-  name: k8s-dashboard-authproxy
+  name: kubernetes-dashboard
+  namespace: kubernetes-dashboard
 spec:
-  chart: oauth2-proxy
-  repo: https://oauth2-proxy.github.io/manifests
-  version: 6.2.0
-  targetNamespace: kubernetes-dashboard
-  set:
-    config:
-      clientID: k8s_dashboard
-      clientSecret: {{ derivePassword 1 "maximum" .Values.secretSeed "k8s_dashboard-client" .Values.domain | b64enc | quote }}
-      cookieSecret: {{ randAlphaNum 32 }}
-      configFile: |-
-        upstreams = [ "http://kubernetes-dashboard" ]
-        pass_access_token = true
-        pass_authorization_header = true
-
+  interval: 5m
+  chart:
+    spec:
+      chart: kubernetes-dashboard
+      version: '5.4.1'
+      sourceRef:
+        kind: HelmRepository
+        name: kubernetes-dashboard
+        namespace: flux-system
+  values:
     ingress:
       enabled: true
       annotations:
         cert-manager.io/cluster-issuer: acme
+        nginx.ingress.kubernetes.io/auth-signin: {{ printf "https://%s.%s/oauth2/start" .Values.root.subdomains.oauth2_proxy .Values.root.domain }}
+        nginx.ingress.kubernetes.io/auth-url: http://oauth2-proxy.oauth2-proxy.svc.cluster.local/oauth2/auth
       hosts:
         - host: {{ printf "%s.%s" .Values.root.subdomains.k8s_dashboard .Values.root.domain }}
       tls:
