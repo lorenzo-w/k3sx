@@ -10,6 +10,7 @@ metadata:
   namespace: wego-system
 type: Opaque
 data:
+  # See https://docs.gitops.weave.works/docs/configuration/securing-access-to-the-dashboard/#login-via-an-oidc-provider
   issuerURL: {{ printf "https://%s.%s" .Values.root.subdomains.dex .Values.root.domain }}
   clientID: k8s
   clientSecret: {{ derivePassword 1 "maximum" .Values.secretSeed "k8s-client" .Values.domain | b64enc | quote }}
