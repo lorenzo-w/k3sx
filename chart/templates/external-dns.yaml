@@ -12,4 +12,5 @@ spec:
       - service
       - ingress
       - contour-httpproxy
+    txtOwnerId: {{ printf "%s-%s" .Values.domain (derivePassword 1 "short" .Values.secretSeed "external-dns" .Values.domain | b64enc) | quote }}
 {{ .Values.external_dns | indent 4 }}    
