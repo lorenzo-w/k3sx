@@ -78,3 +78,12 @@ metadata:
 spec:
   interval: 10m
   url: https://oauth2-proxy.github.io/manifests
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: weave-gitops
+  namespace: flux-system
+spec:
+  interval: 10m
+  url: https://helm.gitops.weave.works

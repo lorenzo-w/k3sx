@@ -32,6 +32,7 @@ spec:
           redirectURIs: # See https://github.com/int128/kubelogin/blob/master/docs/setup.md#dex-with-github
             - http://localhost:8000
             - http://localhost:18000
+            - {{ printf "https://%s.%s/oauth2/callback" .Values.root.subdomains.weave_gitops .Values.root.domain }}
           trustedPeers: # See https://dexidp.io/docs/custom-scopes-claims-clients/#cross-client-trust-and-authorized-party
             - oauth2_proxy
         - id: oauth2_proxy
