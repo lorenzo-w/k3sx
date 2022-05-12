@@ -1,7 +1,8 @@
 {{ if .Values.k3s_setup_run }}
 flannel-backend: none # for Cilium
 disable-network-policy: true # for Cilium
-disable traefik: true # for NGINX Proxy
+disable: 
+  - traefik # for NGINX Proxy
 kube-apiserver-arg:
   # see [Dex Docs](https://dexidp.io/docs/kubernetes/#configuring-the-openid-connect-plugin)
   # and [K8S Auth Docs](https://kubernetes.io/docs/reference/access-authn-authz/authentication/#configuring-the-api-server)
