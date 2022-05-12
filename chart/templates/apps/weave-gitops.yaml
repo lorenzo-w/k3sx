@@ -11,10 +11,10 @@ metadata:
 type: Opaque
 data:
   # See https://docs.gitops.weave.works/docs/configuration/securing-access-to-the-dashboard/#login-via-an-oidc-provider
-  issuerURL: {{ printf "https://%s.%s" .Values.root.subdomains.dex .Values.root.domain | b64enc }}
+  issuerURL: {{ printf "https://%s.%s" .Values.subdomains.dex .Values.domain | b64enc }}
   clientID: {{ b64enc "k8s" }}
   clientSecret: {{ derivePassword 1 "maximum" .Values.secretSeed "k8s-client" .Values.domain | b64enc }}
-  redirectURL: {{ printf "https://%s.%s/oauth2/callback" .Values.root.subdomains.weave_gitops .Values.root.domain | b64enc }}
+  redirectURL: {{ printf "https://%s.%s/oauth2/callback" .Values.subdomains.weave_gitops .Values.domain | b64enc }}
   # tokenDuration: {{ b64enc "1h0m0s" }}
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
@@ -37,8 +37,8 @@ spec:
       annotations:
         cert-manager.io/cluster-issuer: acme
       hosts:
-        - host: {{ printf "%s.%s" .Values.root.subdomains.weave_gitops .Values.root.domain }}
+        - host: {{ printf "%s.%s" .Values.subdomains.weave_gitops .Values.domain }}
       tls:
         - hosts:
-            - {{ printf "%s.%s" .Values.root.subdomains.weave_gitops .Values.root.domain }}
+            - {{ printf "%s.%s" .Values.subdomains.weave_gitops .Values.domain }}
           secretName: weave-gitops-cert

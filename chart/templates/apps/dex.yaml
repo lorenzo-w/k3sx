@@ -23,8 +23,11 @@ spec:
       # See https://dexidp.io/docs/storage/ for more options
       storage:
         type: memory
-      issuer: {{ printf "https://%s.%s" .Values.root.subdomains.dex .Values.root.domain }}
-      connectors: {{ .Values.root.idpConnectors | nindent 4 }}
+      issuer: {{ printf "https://%s.%s" .Values.subdomains.dex .Values.domain }}
+      connectors:     
+      {{- range .Values.idpConnectors }}
+        - {{ . | toYaml | indent 10 | trim -}}
+      {{- end }}
       staticClients:
         - id: k8s
           secret: {{ derivePassword 1 "maximum" .Values.secretSeed "k8s-client" .Values.domain | b64enc | quote }}
@@ -32,27 +35,27 @@ spec:
           redirectURIs: # See https://github.com/int128/kubelogin/blob/master/docs/setup.md#dex-with-github
             - http://localhost:8000
             - http://localhost:18000
-            - {{ printf "https://%s.%s/oauth2/callback" .Values.root.subdomains.weave_gitops .Values.root.domain }}
+            - {{ printf "https://%s.%s/oauth2/callback" .Values.subdomains.weave_gitops .Values.domain }}
           trustedPeers: # See https://dexidp.io/docs/custom-scopes-claims-clients/#cross-client-trust-and-authorized-party
             - oauth2_proxy
         - id: oauth2_proxy
           secret: {{ derivePassword 1 "maximum" .Values.secretSeed "oauth2_proxy-client" .Values.domain | b64enc | quote }}
           name: "OAuth2 Proxy"
           redirectURIs:
-            - {{ printf "https://%s.%s/oauth2/callback" .Values.root.subdomains.oauth2_proxy .Values.root.domain }}
+            - {{ printf "https://%s.%s/oauth2/callback" .Values.subdomains.oauth2_proxy .Values.domain }}
         - id: authentik
           secret: {{ derivePassword 1 "maximum" .Values.secretSeed "authentik-client" .Values.domain | b64enc | quote }}
           name: "Authentik"
           redirectURIs:
-            - {{ printf "https://%s.%s/source/oauth/callback" .Values.root.subdomains.authentik .Values.root.domain }}
+            - {{ printf "https://%s.%s/source/oauth/callback" .Values.subdomains.authentik .Values.domain }}
 
     ingress:
       enabled: true
       annotations:
         cert-manager.io/cluster-issuer: acme
       hosts:
-        - host: {{ printf "%s.%s" .Values.root.subdomains.dex  .Values.root.domain }}
+        - host: {{ printf "%s.%s" .Values.subdomains.dex  .Values.domain }}
       tls:
         - hosts:
-            - {{ printf "%s.%s" .Values.root.subdomains.dex  .Values.root.domain }}
+            - {{ printf "%s.%s" .Values.subdomains.dex  .Values.domain }}
           secretName: dex-cert

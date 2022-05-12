@@ -35,8 +35,8 @@ spec:
       annotations:
         cert-manager.io/cluster-issuer: acme
       hosts:
-        - host: {{ printf "%s.%s" .Values.root.subdomains.oauth2_proxy .Values.root.domain }}
+        - host: {{ printf "%s.%s" .Values.subdomains.oauth2_proxy .Values.domain }}
       tls:
         - hosts:
-            - {{ printf "%s.%s" .Values.root.subdomains.oauth2_proxy .Values.root.domain }}
+            - {{ printf "%s.%s" .Values.subdomains.oauth2_proxy .Values.domain }}
           secretName: oauth2-proxy-cert

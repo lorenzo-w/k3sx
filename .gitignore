@@ -133,3 +133,5 @@ dmypy.json
 /nodes.yaml
 /server-ips.txt
 /agent-ips.txt
+/rendered
+/kubeconfig

@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "k3sx"
+version = "0.1.0"
+description = ""
+authors = ["Lorenzo Wormer <l.wormer@pm.me>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+jupyter = "^1.0.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

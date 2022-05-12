@@ -33,20 +33,20 @@ spec:
   values:
     defaultSettings:
       # See https://longhorn.io/docs/1.2.4/snapshots-and-backups/backup-and-restore/set-backup-target/#set-up-aws-s3-backupstore
-      backupTarget: {{ printf "s3://%s@%s/" .Values.s3_backup.bucket ``.Values.s3_backup.region }}
+      backupTarget: {{ printf "s3://%s@%s/" .Values.s3_backup.bucket .Values.s3_backup.region }}
       backupTargetCredentialSecret: s3-secret
 
     ingress:
       enabled: true
       annotations:
         cert-manager.io/cluster-issuer: acme
-        nginx.ingress.kubernetes.io/auth-signin: {{ printf "https://%s.%s/oauth2/start" .Values.root.subdomains.oauth2_proxy .Values.root.domain }}
+        nginx.ingress.kubernetes.io/auth-signin: {{ printf "https://%s.%s/oauth2/start" .Values.subdomains.oauth2_proxy .Values.domain }}
         nginx.ingress.kubernetes.io/auth-url: http://oauth2-proxy.oauth2-proxy.svc.cluster.local/oauth2/auth
       hosts:
-        - host: {{ printf "%s.%s" .Values.root.subdomains.longhorn_ui .Values.root.domain }}
+        - host: {{ printf "%s.%s" .Values.subdomains.longhorn_ui .Values.domain }}
       tls:
         - hosts:
-            - {{ printf "%s.%s" .Values.root.subdomains.longhorn_ui .Values.root.domain }}
+            - {{ printf "%s.%s" .Values.subdomains.longhorn_ui .Values.domain }}
           secretName: longhorn-cert
 ---
 apiVersion: longhorn.io/v1beta1

@@ -23,4 +23,7 @@ spec:
       - service
       - ingress
     txtOwnerId: {{ printf "%s-%s" .Values.domain (derivePassword 1 "short" .Values.secretSeed "external-dns" .Values.domain | b64enc) | quote }}
-{{ .Values.external_dns | indent 4 }}    
+    {{- range $k, $v := .Values.external_dns }}
+    {{ printf "%s:" $k | nindent 4 }}
+      {{- $v | toYaml | nindent 6 }}
+    {{- end }}

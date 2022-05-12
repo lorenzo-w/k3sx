@@ -23,11 +23,11 @@ spec:
       enabled: true
       annotations:
         cert-manager.io/cluster-issuer: acme
-        nginx.ingress.kubernetes.io/auth-signin: {{ printf "https://%s.%s/oauth2/start" .Values.root.subdomains.oauth2_proxy .Values.root.domain }}
+        nginx.ingress.kubernetes.io/auth-signin: {{ printf "https://%s.%s/oauth2/start" .Values.subdomains.oauth2_proxy .Values.domain }}
         nginx.ingress.kubernetes.io/auth-url: http://oauth2-proxy.oauth2-proxy.svc.cluster.local/oauth2/auth
       hosts:
-        - host: {{ printf "%s.%s" .Values.root.subdomains.k8s_dashboard .Values.root.domain }}
+        - host: {{ printf "%s.%s" .Values.subdomains.k8s_dashboard .Values.domain }}
       tls:
         - hosts:
-            - {{ printf "%s.%s" .Values.root.subdomains.k8s_dashboard .Values.root.domain }}
+            - {{ printf "%s.%s" .Values.subdomains.k8s_dashboard .Values.domain }}
           secretName: k8s-dashboard-cert
