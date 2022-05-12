@@ -131,3 +131,5 @@ dmypy.json
 # Config files (contain private data)
 /values.yaml
 /nodes.yaml
+/server-ips.txt
+/agent-ips.txt
