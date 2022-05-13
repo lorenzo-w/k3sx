@@ -1,3 +1,15 @@
+
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: GitRepository
+metadata:
+  name: k3sx
+  namespace: flux-system
+spec:
+  interval: 5m0s
+  url: https://github.com/lorenzo-w/k3sx
+  ref:
+    branch: main
+---
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: HelmRepository
 metadata:
@@ -15,15 +27,6 @@ metadata:
 spec:
   interval: 10m
   url: https://charts.goauthentik.io
----
-apiVersion: source.toolkit.fluxcd.io/v1beta2
-kind: HelmRepository
-metadata:
-  name: cert-manager
-  namespace: flux-system
-spec:
-  interval: 10m
-  url: https://charts.jetstack.io
 ---
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: HelmRepository
