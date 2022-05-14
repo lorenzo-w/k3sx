@@ -24,7 +24,7 @@ spec:
   interval: 5m
   chart:
     spec:
-      chart: kubernetes-dashboard
+      chart: longhorn
       version: '1.2.4'
       sourceRef:
         kind: HelmRepository
