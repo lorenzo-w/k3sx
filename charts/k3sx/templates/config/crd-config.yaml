@@ -19,3 +19,4 @@ spec:
       namespace: longhorn-system
   values:
     letsencrypt_email: {{ .Values.email.admin_address | quote }}
+    test_run: {{ .Values.test_run }}

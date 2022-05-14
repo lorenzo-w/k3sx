@@ -32,3 +32,5 @@ k3s_setup_run: false # If true, renders k3s YAML config locally to be used by k3
 repo:
   url: "https://github.com/lorenzo-w/k3sx"
   branch: "main"
+
+test_run: false

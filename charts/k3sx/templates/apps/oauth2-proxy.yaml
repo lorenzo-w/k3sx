@@ -24,10 +24,16 @@ spec:
       clientSecret: {{ derivePassword 1 "maximum" .Values.secretSeed "oauth2_proxy-client" .Values.domain | b64enc | quote }}
       cookieSecret: {{ randAlphaNum 32 }}
       configFile: |-
+        provider = "oidc"
+        provider_display_name = "Dex OIDC"
+        oidc_issuer_url = {{ printf "https://%s.%s" .Values.subdomains.dex .Values.domain | quote }}
         pass_access_token = true
         pass_authorization_header = true
         scope = "openid profile email groups federated:id audience:server:client_id:k8s" 
         email_domains = "*"
+        {{ if .Values.test_run -}}
+        ssl_insecure_skip_verify = true
+        {{- end }}
     # -> see https://oauth2-proxy.github.io/oauth2-proxy/docs/configuration/overview#config-file
     # and https://dexidp.io/docs/custom-scopes-claims-clients/#scopes
     # and https://dexidp.io/docs/custom-scopes-claims-clients/#cross-client-trust-and-authorized-party
