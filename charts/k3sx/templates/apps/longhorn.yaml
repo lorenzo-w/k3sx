@@ -46,11 +46,7 @@ spec:
         cert-manager.io/cluster-issuer: acme
         nginx.ingress.kubernetes.io/auth-signin: {{ printf "https://%s.%s/oauth2/start" .Values.subdomains.oauth2_proxy .Values.domain }}
         nginx.ingress.kubernetes.io/auth-url: http://oauth2-proxy.oauth2-proxy.svc.cluster.local/oauth2/auth
-      hosts:
-        - host: {{ printf "%s.%s" .Values.subdomains.longhorn_ui .Values.domain }}
-          paths:
-            - path: /
-              pathType: ImplementationSpecific
+      host: {{ printf "%s.%s" .Values.subdomains.longhorn_ui .Values.domain }}
       tls:
         - hosts:
             - {{ printf "%s.%s" .Values.subdomains.longhorn_ui .Values.domain }}

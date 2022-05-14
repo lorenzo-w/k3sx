@@ -20,5 +20,7 @@ spec:
         namespace: flux-system
   values:
     controller:
+      ingressClassResource:
+        default: true
       extraArgs:
         enable-ssl-passthrough: "true"
