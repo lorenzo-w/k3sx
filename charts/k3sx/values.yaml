@@ -1,5 +1,10 @@
 secretSeed: "" # Please supply a generated secret unique to this cluster (and save it externally for backup)
-idpConnectors: [] # See https://dexidp.io/docs/connectors/
+idp:
+  # See https://dexidp.io/docs/connectors/
+  type: "github"
+  clientID: ""
+  clientSecret: ""
+  issuerURL: ""
 adminGroup: "" # A label identifying the group provided by your IDP, which is to be granted admin privileges (org:team for GitHub)
 domain: "" # The public root domain of this cluster (e.g. "example.org")
 email:
