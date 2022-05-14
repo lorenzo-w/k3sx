@@ -22,7 +22,7 @@ subdomains:
   oauth2_proxy: "auth"
   dex: "oidc"
   authentik: "idp"
-  k8s_dashboard: "k8s"
+  k8s_dashboard: "kube"
   longhorn_ui: "storage"
   cilium_ui: "network"
   weave_gitops: "gitops"

@@ -27,7 +27,7 @@ spec:
   chart:
     spec:
       chart: weave-gitops
-      version: '0.8.0'
+      version: '2.0.5'
       sourceRef:
         kind: HelmRepository
         name: weave-gitops
@@ -38,6 +38,9 @@ spec:
         cert-manager.io/cluster-issuer: acme
       hosts:
         - host: {{ printf "%s.%s" .Values.subdomains.weave_gitops .Values.domain }}
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
       tls:
         - hosts:
             - {{ printf "%s.%s" .Values.subdomains.weave_gitops .Values.domain }}
