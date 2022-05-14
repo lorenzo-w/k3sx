@@ -12,13 +12,15 @@ spec:
   interval: 5m
   chart:
     spec:
-      chart: cert-manager
-      version: '1.8.0'
+      name: cert-manager
+      version: "1.8.0"
       sourceRef:
-        kind: GitRepository
-        name: k3sx
+        kind: HelmRepository
+        name: jetstack
         namespace: flux-system
+  install:
+    crds: CreateReplace
+  upgrade:
+    crds: CreateReplace
   values:
-    letsencrypt_email: {{ .Values.email.admin_address | quote }}
-    cert-manager:
-      installCRDs: true
+    installCRDs: true

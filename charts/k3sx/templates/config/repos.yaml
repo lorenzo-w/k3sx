@@ -6,9 +6,9 @@ metadata:
   namespace: flux-system
 spec:
   interval: 5m0s
-  url: https://github.com/lorenzo-w/k3sx
+  url: {{ .Values.repo.url }}
   ref:
-    branch: main
+    branch: {{ .Values.repo.branch }}
 ---
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: HelmRepository
@@ -90,3 +90,12 @@ metadata:
 spec:
   interval: 10m
   url: https://helm.gitops.weave.works
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: jetstack
+  namespace: flux-system
+spec:
+  interval: 10m
+  url: https://charts.jetstack.io
