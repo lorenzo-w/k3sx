@@ -53,6 +53,13 @@ spec:
         kind: HelmRepository
         name: dex
         namespace: flux-system
+  dependsOn:
+    - name: nginx-ingress
+      namespace: nginx-ingress
+    - name: cert-manager
+      namespace: cert-manager
+    - name: external-dns
+      namespace: external-dns
   values:
     envVars:
       - name: IDP_CLIENT_ID
@@ -121,6 +128,11 @@ spec:
         kind: HelmRepository
         name: oauth2-proxy
         namespace: flux-system
+  dependsOn:
+    - name: nginx-ingress
+      namespace: nginx-ingress
+    - name: dex
+      namespace: sso
   values:
     config:
       clientID: {{ include "names.oidc_client" . }}

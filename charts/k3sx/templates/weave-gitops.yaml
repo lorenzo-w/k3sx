@@ -39,6 +39,11 @@ spec:
         kind: HelmRepository
         name: weave-gitops
         namespace: flux-system
+  dependsOn:
+    - name: nginx-ingress
+      namespace: nginx-ingress
+    - name: dex
+      namespace: sso
   values:
     ingress:
       enabled: true

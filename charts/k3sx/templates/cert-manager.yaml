@@ -18,6 +18,9 @@ spec:
         kind: HelmRepository
         name: jetstack
         namespace: flux-system
+  dependsOn:
+    - name: nginx-ingress
+      namespace: nginx-ingress
   install:
     crds: CreateReplace
   upgrade:

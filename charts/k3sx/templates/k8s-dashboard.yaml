@@ -22,6 +22,11 @@ spec:
         kind: HelmRepository
         name: kubernetes-dashboard
         namespace: flux-system
+  dependsOn: 
+    - name: nginx-ingress
+      namespace: nginx-ingress
+    - name: oauth-proxy
+      namespace: sso
   values:
     ingress:
       enabled: true

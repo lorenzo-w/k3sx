@@ -18,6 +18,9 @@ spec:
         kind: HelmRepository
         name: bitnami
         namespace: flux-system
+  dependsOn:
+    - name: nginx-ingress
+      namespace: nginx-ingress
   values:
     sources:
       - service
