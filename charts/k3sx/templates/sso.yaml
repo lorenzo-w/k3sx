@@ -1,0 +1,171 @@
+{{- define "hosts.oidc" -}}
+{{ printf "%s.%s" .Values.subdomains.dex .Values.domain }}
+{{- end -}}
+{{- define "urls.oidc_issuer" -}}
+{{ printf "https://%s" (include "hosts.oidc" .) }}
+{{- end -}}
+{{- define "urls.oidc_callback" -}}
+{{ printf "https://%s/callback" (include "hosts.oidc" .) }}
+{{- end -}}
+
+{{- define "hosts.authproxy" -}}
+{{ printf "%s.%s" .Values.subdomains.oauth2_proxy .Values.domain }}
+{{- end -}}
+{{- define "urls.authproxy_login" -}}
+{{ printf "https://%s/oauth2/start" (include "hosts.authproxy" .) }}
+{{- end -}}
+{{- define "urls.authproxy_check" -}}
+{{ "http://oauth2-proxy.sso.svc.cluster.local/oauth2/auth" }}
+{{- end -}}
+{{- define "urls.authproxy_callback" -}}
+{{ printf "https://%s/oauth2/callback" (include "hosts.authproxy" .) }}
+{{- end -}}
+
+{{- define "urls.oidc_redirects" -}}
+- {{ include "urls.authproxy_callback" . }}
+- {{ include "urls.weave_gitops_callback" . }}
+{{- end -}}
+
+{{- define "names.oidc_client" -}}
+{{ "k8s" }}
+{{- end -}}
+{{- define "secrets.oidc_client" -}}
+{{ derivePassword 1 "maximum" .Values.secretSeed "k8s-client" .Values.domain | b64enc }}
+{{- end -}}
+
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: sso
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: dex
+  namespace: sso
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: dex
+      version: '0.8.2'
+      sourceRef:
+        kind: HelmRepository
+        name: dex
+        namespace: flux-system
+  dependsOn:
+    - name: nginx-ingress
+      namespace: nginx-ingress
+    - name: cert-manager
+      namespace: cert-manager
+    - name: external-dns
+      namespace: external-dns
+  values:
+    envVars:
+      - name: IDP_CLIENT_ID
+        value: {{ .Values.idp.clientID }}
+      - name: IDP_CLIENT_SECRET
+        value: {{ .Values.idp.clientSecret }}
+    config:
+      # See https://dexidp.io/docs/storage/ for more options
+      storage:
+        type: kubernetes
+        config:
+          inCluster: true
+      issuer: {{ include "urls.oidc_issuer" . }}
+      connectors:     
+        - type: {{ .Values.idp.type }}
+          id: {{ .Values.idp.type }}
+          name: {{ .Values.idp.type }}
+          config:
+            # Credentials can be string literals or pulled from the environment.
+            clientID: $IDP_CLIENT_ID
+            clientSecret: $IDP_CLIENT_SECRET
+            redirectURI: {{ include "urls.oidc_callback" . }}
+            # flag which will switch from using the internal GitHub id to the users handle (@mention) as the user id.
+            # It is possible for a user to change their own user name but it is very rare for them to do so
+            {{ if eq .Values.idp.type "github" -}}
+            useLoginAsID: true
+            loadAllGroups: true
+            {{- else if eq .Values.idp.type "oidc" -}}
+            issuerURL: {{ .Values.idp.issuerURL }}
+            {{- end }}
+      staticClients:
+        - id: {{ include "names.oidc_client" . }}
+          secret: {{ include "secrets.oidc_client" . }}
+          name: "Kubernetes"
+          redirectURIs: # See https://github.com/int128/kubelogin/blob/master/docs/setup.md#dex-with-github
+            - http://localhost:8000
+            - http://localhost:18000
+            {{- include "urls.oidc_redirects" . | nindent 12 }}
+    ingress:
+      enabled: true
+      className: nginx
+      annotations:
+        cert-manager.io/cluster-issuer: acme
+      hosts:
+        - host: {{ include "hosts.oidc" . }}
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
+      tls:
+        - hosts:
+            - {{ include "hosts.oidc" . }}
+          secretName: dex-cert
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: oauth2-proxy
+  namespace: sso
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: oauth2-proxy
+      version: '6.2.0'
+      sourceRef:
+        kind: HelmRepository
+        name: oauth2-proxy
+        namespace: flux-system
+  dependsOn:
+    - name: nginx-ingress
+      namespace: nginx-ingress
+    - name: dex
+      namespace: sso
+  values:
+    config:
+      clientID: {{ include "names.oidc_client" . }}
+      clientSecret: {{ include "secrets.oidc_client" . }}
+      cookieSecret: {{ randAlphaNum 32 }}
+      configFile: |-
+        upstreams = "file:///dev/null"
+        whitelist_domains = [ {{ printf ".%s" .Values.domain | quote }} ]
+        provider = "oidc"
+        provider_display_name = "Dex OIDC"
+        oidc_issuer_url = {{ include "urls.oidc_issuer" . | quote }}
+        redirect_url = {{ include "urls.authproxy_callback" . | quote }}
+        set_xauthrequest = true
+        set_authorization_header = true
+        pass_authorization_header = true
+        pass_access_token = true
+        cookie_samesite = "none"
+        cookie_domains = [ {{ printf ".%s" .Values.domain | quote }} ]
+        email_domains = "*"
+        scope = "email groups profile openid"
+        {{ if .Values.test_run -}}
+        ssl_insecure_skip_verify = true
+        {{- end }}
+    # -> see https://oauth2-proxy.github.io/oauth2-proxy/docs/configuration/overview#config-file
+    # and https://dexidp.io/docs/custom-scopes-claims-clients/#scopes
+    # and https://dexidp.io/docs/custom-scopes-claims-clients/#cross-client-trust-and-authorized-party
+    ingress:
+      enabled: true
+      annotations:
+        cert-manager.io/cluster-issuer: acme
+      hosts:
+        - {{ include "hosts.authproxy" . }}
+      tls:
+        - hosts:
+            - {{ include "hosts.authproxy" . }}
+          secretName: oauth2-proxy-cert

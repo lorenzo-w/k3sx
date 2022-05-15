@@ -1,7 +1,11 @@
+{{ $host := printf "%s.%s" .Values.subdomains.longhorn_ui .Values.domain -}}
+{{ $path := "/" -}}
+{{ $url := printf "https://%s%s" $host $path -}}
+
 kind: Namespace
 apiVersion: v1
 metadata:
-name: longhorn-system
+  name: longhorn-system
 ---
 apiVersion: v1
 kind: Secret
@@ -24,12 +28,21 @@ spec:
   interval: 5m
   chart:
     spec:
-      chart: kubernetes-dashboard
+      chart: longhorn
       version: '1.2.4'
       sourceRef:
         kind: HelmRepository
         name: longhorn
         namespace: flux-system
+  dependsOn:
+    - name: nginx-ingress
+      namespace: nginx-ingress
+    - name: oauth-proxy
+      namespace: sso
+  install:
+    crds: CreateReplace
+  upgrade:
+    crds: CreateReplace
   values:
     defaultSettings:
       # See https://longhorn.io/docs/1.2.4/snapshots-and-backups/backup-and-restore/set-backup-target/#set-up-aws-s3-backupstore
@@ -40,25 +53,11 @@ spec:
       enabled: true
       annotations:
         cert-manager.io/cluster-issuer: acme
-        nginx.ingress.kubernetes.io/auth-signin: {{ printf "https://%s.%s/oauth2/start" .Values.subdomains.oauth2_proxy .Values.domain }}
-        nginx.ingress.kubernetes.io/auth-url: http://oauth2-proxy.oauth2-proxy.svc.cluster.local/oauth2/auth
-      hosts:
-        - host: {{ printf "%s.%s" .Values.subdomains.longhorn_ui .Values.domain }}
+        nginx.ingress.kubernetes.io/auth-response-headers: Authorization
+        nginx.ingress.kubernetes.io/auth-signin: {{ printf "%s?rd=%s" (include "urls.authproxy_login" .) (urlquery $url) }}
+        nginx.ingress.kubernetes.io/auth-url: {{ include "urls.authproxy_check" . }}
+      host: {{ $host }}
       tls:
         - hosts:
-            - {{ printf "%s.%s" .Values.subdomains.longhorn_ui .Values.domain }}
+            - {{ $host }}
           secretName: longhorn-cert
----
-apiVersion: longhorn.io/v1beta1
-kind: RecurringJob
-metadata:
-  name: main-backup
-  namespace: longhorn-system
-spec:
-  # See https://longhorn.io/docs/1.2.4/snapshots-and-backups/scheduling-backups-and-snapshots/#set-up-recurring-jobs-using-a-longhorn-recurringjob
-  cron: "0 0 * * *" # Every day at 12:00 AM
-  task: "backup"
-  groups:
-  - default
-  retain: 2
-  concurrency: 1

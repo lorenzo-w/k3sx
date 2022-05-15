@@ -1,0 +1,60 @@
+{{- define "hosts.weave_gitops" -}}
+{{ printf "%s.%s" .Values.subdomains.weave_gitops .Values.domain }}
+{{- end -}}
+{{- define "urls.weave_gitops_callback" -}}
+{{ printf "https://%s/oauth2/callback" (include "hosts.weave_gitops" .) }}
+{{- end -}}
+
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: wego-system
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: oidc-auth
+  namespace: flux-system
+type: Opaque
+data:
+  # See https://docs.gitops.weave.works/docs/configuration/securing-access-to-the-dashboard/#login-via-an-oidc-provider
+  issuerURL: {{ include "urls.oidc_issuer" . | b64enc }}
+  clientID: {{ include "names.oidc_client" . | b64enc }}
+  clientSecret: {{ include "secrets.oidc_client" . | b64enc }}
+  redirectURL: {{ include "urls.weave_gitops_callback" . | b64enc }}
+  tokenDuration: {{ b64enc "1h0m0s" }}
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: weave-gitops
+  namespace: wego-system
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: weave-gitops
+      version: '2.0.5'
+      sourceRef:
+        kind: HelmRepository
+        name: weave-gitops
+        namespace: flux-system
+  dependsOn:
+    - name: nginx-ingress
+      namespace: nginx-ingress
+    - name: dex
+      namespace: sso
+  values:
+    ingress:
+      enabled: true
+      annotations:
+        cert-manager.io/cluster-issuer: acme
+      hosts:
+        - host: {{ include "hosts.weave_gitops" . }}
+          paths:
+            - path: /
+              pathType: ImplementationSpecific
+      tls:
+        - hosts:
+            - {{ include "hosts.weave_gitops" . }}
+          secretName: weave-gitops-cert

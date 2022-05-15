@@ -1,0 +1,19 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: acme
+spec:
+  acme:
+    email: {{ .Values.letsencrypt_email | quote }}
+    {{ if .Values.test_run -}}
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    {{- else -}}
+    server: https://acme-v02.api.letsencrypt.org/directory
+    {{- end }}
+    privateKeySecretRef:
+      # Secret resource that will be used to store the account's private key.
+      name: acme-issuer-account-key
+    solvers:
+      - http01:
+          ingress:
+            class: nginx

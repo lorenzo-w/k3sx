@@ -1,7 +1,7 @@
 kind: Namespace
 apiVersion: v1
 metadata:
-name: external-dns
+  name: external-dns
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
@@ -18,6 +18,9 @@ spec:
         kind: HelmRepository
         name: bitnami
         namespace: flux-system
+  dependsOn:
+    - name: nginx-ingress
+      namespace: nginx-ingress
   values:
     sources:
       - service
