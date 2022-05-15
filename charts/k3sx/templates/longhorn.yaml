@@ -37,8 +37,6 @@ spec:
   dependsOn:
     - name: nginx-ingress
       namespace: nginx-ingress
-    - name: oauth-proxy
-      namespace: sso
   install:
     crds: CreateReplace
   upgrade:
