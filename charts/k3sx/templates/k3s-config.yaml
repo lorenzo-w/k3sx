@@ -1,12 +1,4 @@
 {{ if .Values.k3s_setup_run }}
-disable: 
-  - traefik # for NGINX Proxy
-kube-apiserver-arg:
-  # see [Dex Docs](https://dexidp.io/docs/kubernetes/#configuring-the-openid-connect-plugin)
-  # and [K8S Auth Docs](https://kubernetes.io/docs/reference/access-authn-authz/authentication/#configuring-the-api-server)
-  # and [Kubelogin Docs](https://github.com/int128/kubelogin/blob/master/docs/setup.md#4-set-up-the-kubernetes-api-server)
-  - {{ printf "--oidc-issuer-url=%s" (include "urls.oidc_issuer" .) }}
-  - {{ printf "--oidc-client-id=%s" (include "names.oidc_client" .) }}
-  - --oidc-username-claim=email
-  - --oidc-groups-claim=groups
+flannel-backend: none # for Cilium
+disable-network-policy: true # for Cilium
 {{ end }}
