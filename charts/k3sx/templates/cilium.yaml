@@ -1,0 +1,56 @@
+{{ $host := printf "%s.%s" .Values.subdomains.cilium_ui .Values.domain -}}
+{{ $path := "/" -}}
+{{ $url := printf "https://%s%s" $host $path -}}
+
+
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: cilium
+  namespace: kube-system
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: cilium
+      version: '1.11.4'
+      sourceRef:
+        kind: HelmRepository
+        name: cilium
+        namespace: flux-system
+  dependsOn:
+    - name: nginx-ingress
+      namespace: nginx-ingress
+    - name: cert-manager
+      namespace: cert-manager
+    - name: external-dns
+      namespace: external-dns
+  values:
+    hubble:
+      # See https://docs.cilium.io/en/stable/gettingstarted/hubble_setup/
+      metrics:
+        enabled: "{dns,drop,tcp,flow,icmp}"
+      relay:
+        enabled: true
+      ui:
+        enabled: true
+        ingress:
+          enabled: true
+          annotations:
+            cert-manager.io/cluster-issuer: acme
+            nginx.ingress.kubernetes.io/auth-response-headers: Authorization
+            nginx.ingress.kubernetes.io/auth-signin: {{ printf "%s?rd=%s" (include "urls.authproxy_login" .) (urlquery $url) }}
+            nginx.ingress.kubernetes.io/auth-url: {{ include "urls.authproxy_check" . }}
+          hosts: 
+            - {{ $host }}
+          tls:
+            - hosts:
+                - {{ $host }}
+              secretName: cilium-cert
+    encryption:
+      # See https://docs.cilium.io/en/stable/gettingstarted/encryption-wireguard/
+      enabled: true
+      type: wireguard
+      wireguard:
+        userspaceFallback: true
+    l7Proxy: false

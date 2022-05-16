@@ -1,4 +1,6 @@
 {{ if .Values.k3s_setup_run }}
+flannel-backend: none # for Cilium
+disable-network-policy: true # for Cilium
 disable: 
   - traefik # for NGINX Proxy
 kube-apiserver-arg:
