@@ -18,9 +18,6 @@ spec:
         kind: HelmRepository
         name: ingress-nginx
         namespace: flux-system
-  dependsOn:
-    - name: cilium
-      namespace: kube-system
   values:
     controller:
       ingressClassResource:

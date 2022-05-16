@@ -37,6 +37,10 @@ spec:
   dependsOn:
     - name: nginx-ingress
       namespace: nginx-ingress
+    - name: cert-manager
+      namespace: cert-manager
+    - name: external-dns
+      namespace: external-dns
   install:
     crds: CreateReplace
   upgrade:

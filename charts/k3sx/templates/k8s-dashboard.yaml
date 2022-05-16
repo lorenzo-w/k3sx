@@ -22,10 +22,16 @@ spec:
         kind: HelmRepository
         name: kubernetes-dashboard
         namespace: flux-system
-  dependsOn: 
+  dependsOn:
     - name: nginx-ingress
       namespace: nginx-ingress
+    - name: cert-manager
+      namespace: cert-manager
+    - name: external-dns
+      namespace: external-dns
   values:
+    metricsScraper:
+      enabled: true
     ingress:
       enabled: true
       annotations:
