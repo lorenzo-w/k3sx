@@ -1,0 +1,5 @@
+{{ if .Values.k3s_setup_run }}
+ingress:
+  enabled: true
+  host: {{ printf "%s.%s" .Values.subdomains.vcluster1 .Values.domain }}
+{{ end }}

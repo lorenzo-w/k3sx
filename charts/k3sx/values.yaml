@@ -31,6 +31,7 @@ subdomains:
   longhorn_ui: "storage"
   cilium_ui: "network"
   weave_gitops: "gitops"
+  vcluster1: "vcluster1"
 
 k3s_setup_run: false # If true, renders k3s YAML config locally to be used by k3sup in cluster setup
 
