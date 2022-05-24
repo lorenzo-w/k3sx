@@ -135,4 +135,3 @@ dmypy.json
 /agent-ips.txt
 /rendered
 /kubeconfig
-/values-testing.yaml
