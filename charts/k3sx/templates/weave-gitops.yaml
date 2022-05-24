@@ -24,6 +24,116 @@ data:
   redirectURL: {{ include "urls.weave_gitops_callback" . | b64enc }}
   tokenDuration: {{ b64enc "1h0m0s" }}
 ---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: wego-admin-role
+  namespace: flux-system
+rules:
+  - verbs:
+      - get
+      - list
+    apiGroups:
+      - ''
+    resources:
+      - secrets
+      - pods
+  - verbs:
+      - get
+      - list
+    apiGroups:
+      - apps
+    resources:
+      - deployments
+      - replicasets
+  - verbs:
+      - get
+      - list
+      - patch
+    apiGroups:
+      - kustomize.toolkit.fluxcd.io
+    resources:
+      - kustomizations
+  - verbs:
+      - get
+      - list
+      - patch
+    apiGroups:
+      - helm.toolkit.fluxcd.io
+    resources:
+      - helmreleases
+  - verbs:
+      - get
+      - list
+      - patch
+    apiGroups:
+      - source.toolkit.fluxcd.io
+    resources:
+      - buckets
+      - helmcharts
+      - gitrepositories
+      - helmrepositories
+  - verbs:
+      - get
+      - watch
+      - list
+    apiGroups:
+      - ''
+    resources:
+      - events
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: wego-admin-rolebinding
+  namespace: flux-system
+subjects:
+  - kind: Group
+    apiGroup: rbac.authorization.k8s.io
+    name: {{ .Values.adminGroup | quote }}
+    namespace: flux-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: wego-admin-role
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: wego-admin-cluster-role
+rules:
+  - apiGroups: [""]
+    resources: ["secrets", "pods" ]
+    verbs: [ "get", "list" ]
+  - apiGroups: ["apps"]
+    resources: [ "deployments", "replicasets"]
+    verbs: [ "get", "list" ]
+  - apiGroups: ["kustomize.toolkit.fluxcd.io"]
+    resources: [ "kustomizations" ]
+    verbs: [ "get", "list", "patch" ]
+  - apiGroups: ["helm.toolkit.fluxcd.io"]
+    resources: [ "helmreleases" ]
+    verbs: [ "get", "list", "patch" ]
+  - apiGroups: ["source.toolkit.fluxcd.io"]
+    resources: [ "buckets", "helmcharts", "gitrepositories", "helmrepositories" ]
+    verbs: [ "get", "list", "patch" ]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["get", "watch", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: wego-admin-cluster-rolebinding
+subjects:
+  - kind: Group
+    apiGroup: rbac.authorization.k8s.io
+    name: {{ .Values.adminGroup | quote }}
+roleRef:
+  kind: ClusterRole
+  name: wego-admin-cluster-role
+  apiGroup: rbac.authorization.k8s.io
+---
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
@@ -33,10 +143,10 @@ spec:
   interval: 5m
   chart:
     spec:
-      chart: weave-gitops
-      version: '2.0.5'
+      chart: ./charts/gitops-server
+      # no version, use latest revision of main branch instead
       sourceRef:
-        kind: HelmRepository
+        kind: GitRepository
         name: weave-gitops
         namespace: flux-system
   dependsOn:
@@ -49,6 +159,11 @@ spec:
     - name: dex
       namespace: sso
   values:
+    image:
+      tag: latest
+    rbac:
+      create: true
+      impersonationResources: ["users", "groups"]
     ingress:
       enabled: true
       annotations:

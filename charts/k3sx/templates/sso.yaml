@@ -141,6 +141,7 @@ spec:
       configFile: |-
         upstreams = "file:///dev/null"
         whitelist_domains = [ {{ printf ".%s" .Values.domain | quote }} ]
+        allowed_groups = [ {{ .Values.adminGroup | quote }} ]
         provider = "oidc"
         provider_display_name = "Dex OIDC"
         oidc_issuer_url = {{ include "urls.oidc_issuer" . | quote }}

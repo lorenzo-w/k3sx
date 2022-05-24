@@ -92,6 +92,17 @@ spec:
   url: https://helm.gitops.weave.works
 ---
 apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: GitRepository
+metadata:
+  name: weave-gitops
+  namespace: flux-system
+spec:
+  interval: 10m
+  url: https://github.com/weaveworks/weave-gitops
+  ref:
+    branch: main
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: HelmRepository
 metadata:
   name: jetstack
