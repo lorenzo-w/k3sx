@@ -26,7 +26,6 @@ subdomains:
   # Under which subdomains of your supplied root domain should the various services run? (Created automatically by external-dns)
   oauth2_proxy: "auth"
   dex: "oidc"
-  authentik: "idp"
   k8s_dashboard: "kube"
   longhorn_ui: "storage"
   cilium_ui: "network"
