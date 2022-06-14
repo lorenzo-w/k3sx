@@ -1,0 +1,32 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: sso-system
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: domain-sso
+  namespace: sso-system
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: /
+      sourceRef:
+        kind: GitRepository
+        name: domain-sso
+        namespace: flux-system
+  dependsOn:
+    - name: nginx-ingress
+      namespace: ingress-system
+    - name: cert-manager
+      namespace: ingress-system
+    - name: external-dns
+      namespace: ingress-system
+  values:
+    secretSeed: {{ .Values.secretSeed | quote }}
+    admin: {{ .Values.idp | toYaml | nindent 6 }}
+    domain: {{ .Values.domain }}
+    org: {{ .Values.org | toYaml | nindent 6 }}
+    configSecretName: sso-config

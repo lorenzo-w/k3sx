@@ -1,0 +1,77 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: ingress-system
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: nginx-ingress
+  namespace: ingress-system
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: ingress-nginx
+      version: '4.1.0'
+      sourceRef:
+        kind: HelmRepository
+        name: ingress-nginx
+        namespace: flux-system
+  values:
+    controller:
+      ingressClassResource:
+        default: true
+      extraArgs:
+        enable-ssl-passthrough: "true"
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: cert-manager
+  namespace: ingress-system
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: cert-manager
+      version: "1.8.0"
+      sourceRef:
+        kind: HelmRepository
+        name: jetstack
+        namespace: flux-system
+  dependsOn:
+    - name: nginx-ingress
+  install:
+    crds: CreateReplace
+  upgrade:
+    crds: CreateReplace
+  values:
+    installCRDs: true
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: external-dns
+  namespace: ingress-system
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: external-dns
+      version: '6.3.0'
+      sourceRef:
+        kind: HelmRepository
+        name: bitnami
+        namespace: flux-system
+  dependsOn:
+    - name: nginx-ingress
+  values:
+    sources:
+      - service
+      - ingress
+    txtOwnerId: {{ printf "%s-%s" .Values.domain (derivePassword 1 "short" .Values.secretSeed "external-dns" .Values.domain | b64enc) | quote }}
+    {{- range $k, $v := .Values.external_dns }}
+    {{ printf "%s:" $k | nindent 4 }}
+      {{- $v | toYaml | nindent 6 }}
+    {{- end }}

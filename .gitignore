@@ -136,3 +136,5 @@ dmypy.json
 /rendered
 /kubeconfig
 /kubeconfig-virtual.yaml
+
+*.tgz

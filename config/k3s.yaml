@@ -1,0 +1,6 @@
+---
+# Source: k3sx/templates/k3s-config.yaml
+flannel-backend: none # for Cilium
+disable-network-policy: true # for Cilium
+disable:
+  - traefik # for NGINX Proxy

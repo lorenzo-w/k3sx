@@ -1,0 +1,13 @@
+hosts:
+  cilium: ""
+  longhorn: ""
+
+s3_backup:
+  endpoint: ""
+  access_key:
+    id: ""
+    secret: ""
+
+sso_config:
+  secret_name: ""
+  namespace: ""

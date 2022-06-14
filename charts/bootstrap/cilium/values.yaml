@@ -1,0 +1,6 @@
+cilium:
+  encryption:
+    # See https://docs.cilium.io/en/stable/gettingstarted/encryption-wireguard/
+    enabled: true
+    type: wireguard
+  l7Proxy: false

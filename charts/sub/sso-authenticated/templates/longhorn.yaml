@@ -1,7 +1,3 @@
-{{ $host := printf "%s.%s" .Values.subdomains.longhorn_ui .Values.domain -}}
-{{ $path := "/" -}}
-{{ $url := printf "https://%s%s" $host $path -}}
-
 kind: Namespace
 apiVersion: v1
 metadata:
@@ -34,13 +30,6 @@ spec:
         kind: HelmRepository
         name: longhorn
         namespace: flux-system
-  dependsOn:
-    - name: nginx-ingress
-      namespace: nginx-ingress
-    - name: cert-manager
-      namespace: cert-manager
-    - name: external-dns
-      namespace: external-dns
   install:
     crds: CreateReplace
   upgrade:
@@ -52,14 +41,15 @@ spec:
       backupTargetCredentialSecret: s3-secret
 
     ingress:
+      {{ $url := printf "https://%s" .Values.hosts.longhorn -}}
       enabled: true
       annotations:
         cert-manager.io/cluster-issuer: acme
         nginx.ingress.kubernetes.io/auth-response-headers: Authorization
-        nginx.ingress.kubernetes.io/auth-signin: {{ printf "%s?rd=%s" (include "urls.authproxy_login" .) (urlquery $url) }}
-        nginx.ingress.kubernetes.io/auth-url: {{ include "urls.authproxy_check" . }}
-      host: {{ $host }}
+        nginx.ingress.kubernetes.io/auth-signin: {{ printf "%s?rd=%s" (include "sso.get_value" (dict "key" "authproxy_login_url" "context" $)) (urlquery $url) }}
+        nginx.ingress.kubernetes.io/auth-url: {{ include "sso.get_value" (dict "key" "authproxy_check_url" "context" $) }}
+      host: {{ .Values.hosts.longhorn }}
       tls:
         - hosts:
-            - {{ $host }}
+            - {{ .Values.hosts.longhorn }}
           secretName: longhorn-cert

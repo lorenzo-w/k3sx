@@ -1,14 +1,23 @@
 secretSeed: "" # Please supply a generated secret unique to this cluster (and save it externally for backup)
-idp:
-  # See https://dexidp.io/docs/connectors/
-  type: "github"
-  clientID: ""
-  clientSecret: ""
-  issuerURL: ""
-adminGroup: "" # A label identifying the group provided by your IDP, which is to be granted admin privileges (org:team for GitHub)
+
+admin:
+  idp:
+    # See https://dexidp.io/docs/connectors/
+    type: "github"
+    clientID: ""
+    clientSecret: ""
+    issuerURL: ""
+  group: "" # A label identifying the group provided by your IDP, which is to be granted admin privileges (org:team for GitHub)
+  email: "" # Admin email address (for email notifications and initial admin accounts)
+  password: "" # Password for initial admin account
+
 domain: "" # The public root domain of this cluster (e.g. "example.org")
-email:
-  admin_address: "" # Admin email address (for email notifications from Let's Encrypt etc.)
+
+org:
+  name: "" # The full name of your organization
+  defaultLocale: "en_US"
+  logoURL: ""
+
 s3_backup:
   endpoint: "" # Domain without protocol of your S3 endpoint (e.g. "s3.example.org")
   region: "eu-central-1" # Required by Longhorn, just leave the default if you don't have zones
@@ -16,21 +25,21 @@ s3_backup:
   access_key:
     id: "" # Your S3 access key id
     secret: "" # Your S3 access key secret
+
 external_dns: # These settings are piped directly into the external-dns helm chart config
   # Please supply the type of your DNS provider and according config.
   # For a list of available providers see: https://github.com/kubernetes-sigs/external-dns#the-latest-release
   provider: digitalocean
   digitalocean:
     apiToken: ""
+
 subdomains:
   # Under which subdomains of your supplied root domain should the various services run? (Created automatically by external-dns)
   oauth2_proxy: "auth"
-  dex: "oidc"
+  dex: "admin-oidc"
   k8s_dashboard: "kube"
   longhorn_ui: "storage"
   cilium_ui: "network"
-  weave_gitops: "gitops"
-  vcluster1: "vcluster1"
 
 k3s_setup_run: false # If true, renders k3s YAML config locally to be used by k3sup in cluster setup
 

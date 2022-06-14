@@ -1,22 +1,20 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: crd-config
+  name: cluster-issuer
   namespace: default
 spec:
   interval: 5m
   chart:
     spec:
-      chart: charts/crd-config
+      chart: charts/sub/cluster-issuer
       sourceRef:
         kind: GitRepository
         name: k3sx
         namespace: flux-system
   dependsOn:
     - name: cert-manager
-      namespace: cert-manager
-    - name: longhorn
-      namespace: longhorn-system
+      namespace: ingress-system
   values:
-    letsencrypt_email: {{ .Values.email.admin_address | quote }}
+    letsencrypt_email: {{ .Values.admin.email | quote }}
     test_run: {{ .Values.test_run }}
