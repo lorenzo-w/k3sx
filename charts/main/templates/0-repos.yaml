@@ -18,7 +18,7 @@ spec:
   interval: 5m0s
   url: https://github.com/lorenzo-w/domain-sso
   ref:
-    branch: master
+    branch: main
 ---
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: HelmRepository
