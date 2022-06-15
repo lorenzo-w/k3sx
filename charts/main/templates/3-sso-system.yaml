@@ -12,7 +12,7 @@ spec:
   interval: 5m
   chart:
     spec:
-      chart: /
+      chart: "."
       sourceRef:
         kind: GitRepository
         name: domain-sso
