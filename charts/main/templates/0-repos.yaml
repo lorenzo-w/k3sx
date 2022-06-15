@@ -32,29 +32,11 @@ spec:
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: HelmRepository
 metadata:
-  name: authentik
-  namespace: flux-system
-spec:
-  interval: 10m
-  url: https://charts.goauthentik.io
----
-apiVersion: source.toolkit.fluxcd.io/v1beta2
-kind: HelmRepository
-metadata:
   name: cilium
   namespace: flux-system
 spec:
   interval: 10m
   url: https://helm.cilium.io/
----
-apiVersion: source.toolkit.fluxcd.io/v1beta2
-kind: HelmRepository
-metadata:
-  name: dex
-  namespace: flux-system
-spec:
-  interval: 10m
-  url: https://charts.dexidp.io
 ---
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: HelmRepository
@@ -82,35 +64,6 @@ metadata:
 spec:
   interval: 10m
   url: https://kubernetes.github.io/ingress-nginx
----
-apiVersion: source.toolkit.fluxcd.io/v1beta2
-kind: HelmRepository
-metadata:
-  name: oauth2-proxy
-  namespace: flux-system
-spec:
-  interval: 10m
-  url: https://oauth2-proxy.github.io/manifests
----
-apiVersion: source.toolkit.fluxcd.io/v1beta2
-kind: HelmRepository
-metadata:
-  name: weave-gitops
-  namespace: flux-system
-spec:
-  interval: 10m
-  url: https://helm.gitops.weave.works
----
-apiVersion: source.toolkit.fluxcd.io/v1beta2
-kind: GitRepository
-metadata:
-  name: weave-gitops
-  namespace: flux-system
-spec:
-  interval: 10m
-  url: https://github.com/weaveworks/weave-gitops
-  ref:
-    branch: main
 ---
 apiVersion: source.toolkit.fluxcd.io/v1beta2
 kind: HelmRepository
