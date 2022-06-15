@@ -26,7 +26,7 @@ spec:
       namespace: ingress-system
   values:
     secretSeed: {{ .Values.secretSeed | quote }}
-    admin: {{ .Values.idp | toYaml | nindent 6 }}
+    admin: {{ .Values.admin | toYaml | nindent 6 }}
     domain: {{ .Values.domain }}
     org: {{ .Values.org | toYaml | nindent 6 }}
     configSecretName: sso-config
