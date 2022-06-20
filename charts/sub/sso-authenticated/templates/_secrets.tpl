@@ -8,7 +8,7 @@ Params:
   - context - Context - Required - Parent context.
 */}}
 {{- define "sso.get_value" -}}
-{{- $secret := (lookup "v1" "Secret" .Values.sso_config.namespace .Values.sso_config.secret_name) }}
+{{- $secret := (lookup "v1" "Secret" .context.Values.sso_config.namespace .context.Values.sso_config.secret_name) }}
 {{- if $secret }}
   {{- $secret.data | index .key | b64dec -}}
 {{- end -}}
