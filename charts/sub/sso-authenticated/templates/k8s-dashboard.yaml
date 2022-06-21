@@ -1,7 +1,3 @@
-{{ $host := printf "%s.%s" .Values.subdomains.k8s_dashboard .Values.domain -}}
-{{ $path := "/" -}}
-{{ $url := printf "https://%s%s" $host $path -}}
-
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
@@ -21,15 +17,16 @@ spec:
     metricsScraper:
       enabled: true
     ingress:
+      {{ $url := printf "https://%s" .Values.hosts.k8s_dashboard -}}
       enabled: true
       annotations:
         cert-manager.io/cluster-issuer: acme
         nginx.ingress.kubernetes.io/auth-response-headers: Authorization
-        nginx.ingress.kubernetes.io/auth-signin: {{ printf "%s?rd=%s" (include "urls.authproxy_login" .) (urlquery $url) }}
-        nginx.ingress.kubernetes.io/auth-url: {{ include "urls.authproxy_check" . }}
+        nginx.ingress.kubernetes.io/auth-signin: {{ printf "%s?rd=%s" (include "sso.get_value" (dict "key" "authproxy_login_url" "context" $)) (urlquery $url) }}
+        nginx.ingress.kubernetes.io/auth-url: {{ include "sso.get_value" (dict "key" "authproxy_check_url" "context" $) }}
       hosts:
-        - {{ $host }}
+        - {{ .Values.hosts.k8s_dashboard }}
       tls:
         - hosts:
-            - {{ $host }}
+            - {{ .Values.hosts.k8s_dashboard }}
           secretName: k8s-dashboard-cert
