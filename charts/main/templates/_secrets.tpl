@@ -45,12 +45,7 @@ The order in which this function returns a secret password:
   {{- if .context.Values.enabled }}
     {{- $subchart = $chartName }}
   {{- end -}}
-
-  {{- $requiredPassword := dict "valueKey" $providedPasswordKey "secret" .secret "field" .key "subchart" $subchart "context" $.context -}}
-  {{- $requiredPasswordError := include "common.validations.values.single.empty" $requiredPassword -}}
-  {{- $passwordValidationErrors := list $requiredPasswordError -}}
-  {{- include "common.errors.upgrade.passwords.empty" (dict "validationErrors" $passwordValidationErrors "context" $.context) -}}
-
+  
   {{- if .strong }}
     {{- $subStr := list (lower (randAlpha 1)) (randNumeric 1) (upper (randAlpha 1)) | join "_" }}
     {{- $password = randAscii $passwordLength }}
