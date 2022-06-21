@@ -6,13 +6,13 @@ metadata:
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: domain-sso
+  name: sso-provider
   namespace: sso-system
 spec:
   interval: 5m
   chart:
     spec:
-      chart: "."
+      chart: /charts/provider
       sourceRef:
         kind: GitRepository
         name: domain-sso
@@ -25,7 +25,6 @@ spec:
     - name: external-dns
       namespace: ingress-system
   values:
-    secretSeed: {{ .Values.secretSeed | quote }}
     admin: {{ .Values.admin | toYaml | nindent 6 }}
     domain: {{ .Values.domain }}
     org: {{ .Values.org | toYaml | nindent 6 }}
