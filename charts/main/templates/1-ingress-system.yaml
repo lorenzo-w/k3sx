@@ -24,6 +24,8 @@ spec:
         default: true
       extraArgs:
         enable-ssl-passthrough: "true"
+      config:
+        proxy-buffer-size: "16k" # See https://andrewlock.net/fixing-nginx-upstream-sent-too-big-header-error-when-running-an-ingress-controller-in-kubernetes/ for explanation
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
