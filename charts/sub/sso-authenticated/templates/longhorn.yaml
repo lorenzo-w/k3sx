@@ -34,7 +34,10 @@ spec:
       # See https://longhorn.io/docs/1.2.4/snapshots-and-backups/backup-and-restore/set-backup-target/#set-up-aws-s3-backupstore
       backupTarget: {{ printf "s3://%s@%s/" .Values.s3_backup.bucket .Values.s3_backup.region }}
       backupTargetCredentialSecret: s3-secret
-
+    persistence:
+      defaultClass: true
+      defaultClassReplicaCount: 1
+      defaultDataLocality: best-effort
     ingress:
       {{ $url := printf "https://%s" .Values.hosts.longhorn -}}
       enabled: true

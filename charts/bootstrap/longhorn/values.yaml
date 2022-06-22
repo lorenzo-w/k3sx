@@ -1,0 +1,4 @@
+persistence:
+  defaultClass: true
+  defaultClassReplicaCount: 1
+  defaultDataLocality: best-effort
