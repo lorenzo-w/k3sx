@@ -70,6 +70,8 @@ spec:
     sources:
       - service
       - ingress
+    domainFilters:
+      - {{ .Values.domain }}
     txtOwnerId: {{ printf "%s-%s" .Values.domain (derivePassword 1 "short" .Values.secretSeed "external-dns" .Values.domain | b64enc) | quote }}
     {{- range $k, $v := .Values.external_dns }}
     {{ printf "%s:" $k | nindent 4 }}
