@@ -4,3 +4,4 @@ flannel-backend: none # for Cilium
 disable-network-policy: true # for Cilium
 disable:
   - traefik # for NGINX Proxy
+  - local-storage # For Longhorn
