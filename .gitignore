@@ -138,3 +138,5 @@ dmypy.json
 /kubeconfig-virtual.yaml
 
 *.tgz
+
+/backup
