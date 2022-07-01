@@ -21,6 +21,9 @@ spec:
       tls: true
       annotations:
         cert-manager.io/cluster-issuer: acme
+        nginx.ingress.kubernetes.io/auth-response-headers: Authorization
+        nginx.ingress.kubernetes.io/auth-signin: {{ printf "%s?rd=%s" (include "get_sso_config" (dict "key" "authproxy_login_url" "context" $)) (urlquery $url) }}
+        nginx.ingress.kubernetes.io/auth-url: {{ printf "%s?allowed_groups=%s" (include "get_sso_config" (dict "key" "authproxy_check_url" "context" $)) (include "get_sso_config" (dict "key" "admin_group" "context" $) | urlquery) }}
     packaging:
       helm:
         enabled: false
