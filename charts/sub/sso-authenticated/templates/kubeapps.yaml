@@ -15,7 +15,7 @@ spec:
   values:
     ingress:
       enabled: true
-      hostname: {{ .Values.hostnames.kubeapps }}
+      hostname: {{ .Values.hosts.kubeapps }}
       tls: true
       annotations:
         cert-manager.io/cluster-issuer: acme

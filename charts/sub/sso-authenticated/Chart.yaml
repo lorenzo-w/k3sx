@@ -3,5 +3,5 @@ apiVersion: v2
 name: sso-authenticated
 description: A Helm Chart for deploying a SSO-autheticated endpoints after cluster-internal SSO has been setup
 type: application
-version: "0.2.0"
+version: "0.2.1"
 appVersion: "1.0"
