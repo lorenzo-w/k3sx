@@ -20,6 +20,8 @@ spec:
       annotations:
         cert-manager.io/cluster-issuer: acme
     packaging:
+      helm:
+        enabled: false
       flux:
         enabled: true
     authProxy:
