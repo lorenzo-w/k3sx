@@ -14,6 +14,7 @@ spec:
         name: bitnami
         namespace: flux-system
   values:
+    {{ $url := printf "https://%s" .Values.hosts.kubeapps -}}
     ingress:
       enabled: true
       hostname: {{ .Values.hosts.kubeapps }}
@@ -28,6 +29,6 @@ spec:
     authProxy:
       enabled: true
       external: true
-      oauthLoginURI: {{ include "get_sso_config" (dict "key" "authproxy_login_url" "context" $) }}
+      oauthLoginURI: {{ printf "%s?rd=%s" (include "get_sso_config" (dict "key" "authproxy_login_url" "context" $)) (urlquery $url) }}
       oauthLogoutURI: {{ include "get_sso_config" (dict "key" "authproxy_logout_url" "context" $) }}
       skipKubeappsLoginPage: true
