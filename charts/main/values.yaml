@@ -35,9 +35,10 @@ external_dns: # These settings are piped directly into the external-dns helm cha
 
 subdomains:
   # Under which subdomains of your supplied root domain should the various services run? (Created automatically by external-dns)
-  k8s_dashboard: "kube"
+  k8s_dashboard: "cluster"
   longhorn_ui: "storage"
   cilium_ui: "network"
+  kubeapps: "apps"
 
 k3s_setup_run: false # If true, renders k3s YAML config locally to be used by k3sup in cluster setup
 

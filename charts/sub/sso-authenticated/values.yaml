@@ -2,6 +2,7 @@ hosts:
   cilium: ""
   longhorn: ""
   k8s_dashboard: ""
+  kubeapps: ""
 
 s3_backup:
   endpoint: ""

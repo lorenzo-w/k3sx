@@ -1,0 +1,30 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: kubeapps
+  namespace: flux-system
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: kubeapps
+      version: '9.0.2'
+      sourceRef:
+        kind: HelmRepository
+        name: bitnami
+  values:
+    ingress:
+      enabled: true
+      hostname: {{ .Values.hostnames.kubeapps }}
+      tls: true
+      annotations:
+        cert-manager.io/cluster-issuer: acme
+    packaging:
+      flux:
+        enabled: true
+    authProxy:
+      enabled: true
+      external: true
+      oauthLoginURI: {{ include "get_sso_config" (dict "key" "authproxy_login_url" "context" $) }}
+      oauthLogoutURI: {{ include "get_sso_config" (dict "key" "authproxy_logout_url" "context" $) }}
+      skipKubeappsLoginPage: true
