@@ -95,7 +95,7 @@ spec:
       features: EnableCSI
     snapshotsEnabled: true
     schedules:
-      full_backup:
+      full-backup:
         disabled: false
         schedule: "0 0 * * *"
         useOwnerReferencesInBackup: false
