@@ -82,3 +82,12 @@ metadata:
 spec:
   interval: 10m
   url: https://vmware-tanzu.github.io/helm-charts/
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: piraeus-charts
+  namespace: flux-system
+spec:
+  interval: 10m
+  url: https://piraeus.io/helm-charts/
