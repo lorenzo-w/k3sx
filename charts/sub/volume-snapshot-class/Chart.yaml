@@ -1,0 +1,7 @@
+apiVersion: v2
+
+name: volume-snapshot-class
+description: A Helm Chart for deploying a volume-snapshot-class after installation of all dependency CRDs
+type: application
+version: 0.1.0
+appVersion: "1.0"
