@@ -36,7 +36,7 @@ spec:
       backupTargetCredentialSecret: s3-secret
     persistence:
       defaultClass: true
-      defaultClassReplicaCount: 1
+      defaultClassReplicaCount: 2
       defaultDataLocality: best-effort
     ingress:
       {{ $url := printf "https://%s" .Values.hosts.longhorn -}}
