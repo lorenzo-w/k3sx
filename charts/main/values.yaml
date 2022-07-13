@@ -38,7 +38,6 @@ subdomains:
   k8s_dashboard: "cluster"
   longhorn_ui: "storage"
   cilium_ui: "network"
-  kubeapps: "apps"
 
 k3s_setup_run: false # If true, renders k3s YAML config locally to be used by k3sup in cluster setup
 

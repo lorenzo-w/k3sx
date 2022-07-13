@@ -20,7 +20,6 @@ spec:
       cilium: {{ printf "%s.%s" .Values.subdomains.cilium_ui .Values.domain }}
       longhorn: {{ printf "%s.%s" .Values.subdomains.longhorn_ui .Values.domain }}
       k8s_dashboard: {{ printf "%s.%s" .Values.subdomains.k8s_dashboard .Values.domain }}
-      kubeapps: {{ printf "%s.%s" .Values.subdomains.kubeapps .Values.domain }}
     s3_backup: {{ .Values.s3_backup | toYaml | nindent 6 }}
     sso_config:
       secret_name: sso-config
