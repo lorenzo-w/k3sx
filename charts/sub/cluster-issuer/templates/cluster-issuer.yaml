@@ -5,7 +5,7 @@ metadata:
 spec:
   acme:
     email: {{ .Values.letsencrypt_email | quote }}
-    {{ if .Values.test_run -}}
+    {{ if .Values.letsencrypt_staging -}}
     server: https://acme-staging-v02.api.letsencrypt.org/directory
     {{- else -}}
     server: https://acme-v02.api.letsencrypt.org/directory

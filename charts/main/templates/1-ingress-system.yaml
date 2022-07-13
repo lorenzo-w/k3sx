@@ -72,7 +72,7 @@ spec:
     sources:
       - service
       - ingress
-    txtOwnerId: {{ printf "%s-%s" .Values.domain (derivePassword 1 "short" .Values.secretSeed "external-dns" .Values.domain ) | quote }}
+    txtOwnerId: {{ printf "%s-%s" .Values.domain .Values.clusterName | quote }}
     {{- range $k, $v := .Values.external_dns }}
     {{ printf "%s:" $k | nindent 4 }}
       {{- $v | toYaml | nindent 6 }}
@@ -97,4 +97,4 @@ spec:
       namespace: ingress-system
   values:
     letsencrypt_email: {{ .Values.admin.email | quote }}
-    test_run: {{ .Values.test_run }}
+    letsencrypt_staging: {{ .Values.letsencrypt_staging }}
